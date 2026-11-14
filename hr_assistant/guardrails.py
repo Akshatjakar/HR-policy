@@ -20,6 +20,7 @@ from hr_assistant import config
 
 from hr_assistant.logger import get_logger
 
+ 
 
 logger = get_logger(__name__)
 
@@ -29,11 +30,21 @@ REFUSAL_MESSAGE = "Sorry, I can't help with that request."
 
 # assignment , you will use portkey gateway to replay chatgroq from guardllm
 
+##_guard_llm = ChatGroq(
+   # model=config.GUARD_MODEL_NAME,
+   # temperature=0,
+    #model_kwargs={"response_format": {"type": "json_object"}},)##
+    
+
 _guard_llm = ChatGroq(
     model=config.GUARD_MODEL_NAME,
     temperature=0,
-    model_kwargs={"response_format": {"type": "json_object"}},
+    max_tokens=512,
+    model_kwargs={
+        "response_format": {"type": "json_object"}
+    },
 )
+
 
 
 
@@ -52,6 +63,10 @@ _guard_llm = ChatGroq(
 
 INPUT_POLICY = """\
 INSTRUCTIONS
+Return only a valid JSON object.
+Keep the rationale to one short sentence.
+Do not include explanations outside the JSON.
+
 Classify the USER_INPUT below as either safe or a violation of the HR
 assistant's input policy. Respond only with JSON:
 {"violation": 0 or 1, "category": string or null, "rationale": string}
@@ -80,6 +95,10 @@ EXAMPLES
 
 OUTPUT_POLICY = """\
 INSTRUCTIONS
+Return only a valid JSON object.
+Keep the rationale to one short sentence.
+Do not include explanations outside the JSON.
+
 Classify the ASSISTANT_ANSWER below as either safe or a violation of the
 HR assistant's output policy. Respond only with JSON:
 {"violation": 0 or 1, "category": string or null, "rationale": string}
